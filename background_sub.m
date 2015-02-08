@@ -1,3 +1,4 @@
+
 function [ substracted_frame ] = background_sub(current_frame, background)
 %BACKGROUND_SUB Summary of this function goes here
 %   Detailed explanation goes here

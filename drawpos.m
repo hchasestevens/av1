@@ -21,7 +21,12 @@ for i = 25:87
     substracted_frame = background_sub(current_frame, background);
     imshow(current_frame);
     hold on
-    props = extractForegroundObjects(substracted_frame);
+    
+    mask = repmat(substracted_frame, [1, 1, 3]); 
+    current_frame(~mask) = 0;
+    
+    
+    props = extractForegroundObjects(separate_balls(current_frame));
     drawCentres(props);
     
 	for j = 1:num_balls
