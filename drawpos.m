@@ -19,8 +19,11 @@ for i = 25:87
 	current_frame=imread(filename);
 	clc
     substracted_frame = background_sub(current_frame, background);
-	imshow(substracted_frame);
-	hold on
+    imshow(current_frame);
+    hold on
+    props = extractForegroundObjects(substracted_frame);
+    drawCentres(props);
+    
 	for j = 1:num_balls
 		limits(j) = numel(new_balls(j).row_of_centers);
 		if nextid(j) <= limits(j)
