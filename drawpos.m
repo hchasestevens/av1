@@ -19,14 +19,15 @@ for i = 25:87
 	current_frame=imread(filename);
 	clc
     substracted_frame = background_sub(current_frame, background);
+    
     imshow(current_frame);
     hold on
     
     mask = repmat(substracted_frame, [1, 1, 3]); 
-    current_frame(~mask) = 0;
-    
-    
-    props = extractForegroundObjects(separate_balls(current_frame));
+    masked_current_frame = current_frame;
+    masked_current_frame(~mask) = 0;
+       
+    props = extractForegroundObjects(separate_balls(masked_current_frame), current_frame);
     drawCentres(props);
     
 	for j = 1:num_balls
@@ -39,6 +40,6 @@ for i = 25:87
 			end
 		end
 	end
-	pause(1.5)
+	pause(0.5)
 end
 

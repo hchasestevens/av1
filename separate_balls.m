@@ -1,9 +1,4 @@
 function [ balls ] = separate_balls( masked_image )
-%UNTITLED Summary of this function goes here
-%   Detailed explanation goes here
-    x = size(masked_image, 1);
-    y = size(masked_image, 2);
-    
     hsv_image = rgb2hsv(masked_image);
     hue_values = hsv_image(:, :, 1);
     sat_values = hsv_image(:, :, 2);
@@ -16,15 +11,11 @@ function [ balls ] = separate_balls( masked_image )
     x_sat_convolved = conv2(sat_values, x_kernel, 'same'); 
     y_sat_convolved = conv2(sat_values, y_kernel, 'same');
     
-    %imshow(convolved);
-    
     background = bwmorph(greyscale_image == 0, 'clean', 2);
     bool_x_hue_convolved = x_hue_convolved > 0.5;
     bool_y_hue_convolved = y_hue_convolved > 0.5;
     bool_x_sat_convolved = x_sat_convolved > 0.5;
     bool_y_sat_convolved = y_sat_convolved > 0.25;
-    
-    %imshow(bool_y_sat_convolved);
     
     balls = bool_x_hue_convolved | ...
             bool_y_hue_convolved | ...
