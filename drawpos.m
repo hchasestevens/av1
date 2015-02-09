@@ -14,7 +14,7 @@ end
 
 background = imread('bgframe.jpg');
 
-total_detections = zeros(1, 3);
+total_detections = zeros(1, 4);
 for i = 25:87
 	filename = [file_name sprintf('%08d', i) file_format];
 	current_frame=imread(filename);
@@ -42,5 +42,6 @@ for i = 25:87
 	pause(0.5)
 end
 
-total_detections
+total_detections(1:3)
+total_detections(4)/total_detections(1)
 
