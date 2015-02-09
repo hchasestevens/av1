@@ -1,6 +1,7 @@
-function [ props ] = extractForegroundObjects(foreground, current_frame)
+function [ top_props ] = extractForegroundObjects(foreground, current_frame)
     MIN_AREA = 100;
     MIN_LUMINOSITY = 40;
+    NUMBER_OF_BALLS = 8;
     
     current_frame_greyscale = rgb2gray(current_frame);
     
@@ -35,6 +36,22 @@ function [ props ] = extractForegroundObjects(foreground, current_frame)
     props(rm) = [];
     
     % Find only 8-10 largest
+    number_to_add = min(size(props, 1), NUMBER_OF_BALLS); 
+    areas = cat(1, props.Area);
+    if isempty(areas)
+        top_props = props;
+    else
+        sorted_areas = sort(areas, 'descend');
+        minimum_area = sorted_areas(number_to_add);
     
+        top_props = props(1:number_to_add);
+        k = 1;
+        for i = 1 : size(props, 1)
+            if props(i).Area >= minimum_area && k <= number_to_add
+                top_props(k) = props(i);
+                k = k + 1;
+            end
+        end
+    end
 end
 
