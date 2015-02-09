@@ -14,6 +14,7 @@ end
 
 background = imread('bgframe.jpg');
 
+total_detections = zeros(1, 3);
 for i = 25:87
 	filename = [file_name sprintf('%08d', i) file_format];
 	current_frame=imread(filename);
@@ -25,6 +26,8 @@ for i = 25:87
        
     props = extractForegroundObjects(separate_balls(substracted_frame, current_frame), current_frame);
     drawCentres(props);
+    detections = evaluate(i, props);
+    total_detections = total_detections + detections;
     
 	for j = 1:num_balls
 		limits(j) = numel(new_balls(j).row_of_centers);
@@ -38,4 +41,6 @@ for i = 25:87
     end
 	pause(0.5)
 end
+
+total_detections
 
