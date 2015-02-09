@@ -1,4 +1,7 @@
-function [ balls ] = separate_balls( masked_image )
+function [ balls ] = separate_balls( substracted_frame, masked_image )
+    mask = repmat(substracted_frame, [1, 1, 3]); 
+    masked_image(~mask) = 0;
+
     hsv_image = rgb2hsv(masked_image);
     hue_values = hsv_image(:, :, 1);
     sat_values = hsv_image(:, :, 2);
