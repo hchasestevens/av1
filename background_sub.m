@@ -37,6 +37,7 @@ function [ substracted_frame ] = background_sub(current_frame, background)
     substracted_frame = bwmorph(substracted_frame, 'erode', 1);
     substracted_frame = bwmorph(substracted_frame, 'thicken', 6);
     substracted_frame = bwmorph(substracted_frame, 'bridge', 5);
+    substracted_frame = bwmorph(substracted_frame, 'fill', 1);
     
     %mask = repmat(substracted_frame, [1, 1, 3]); 
     %current_frame2(~mask) = 0;

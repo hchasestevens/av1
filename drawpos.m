@@ -35,7 +35,7 @@ for i = 25:87
 				nextid(j) = nextid(j) + 1;
 			end
 		end
-	end
+    end
 	pause(0.5)
 end
 
