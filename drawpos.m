@@ -17,6 +17,8 @@ background = imread('bgframe.jpg');
 %tracked_balls = {};
 %tracked_balls{87-25} = {}; % 1 set for each frame
 
+total_detections = zeros(1, 4);
+
 for i = 25:87
 	filename = [file_name sprintf('%08d', i) file_format];
 	current_frame=imread(filename);
@@ -28,6 +30,8 @@ for i = 25:87
        
     props = extractForegroundObjects(separate_balls(substracted_frame, current_frame), current_frame);
     drawCentres(props);
+    detections = evaluate(i, props);
+    total_detections = total_detections + detections;
     
     %tracked_balls = update_ball_tracking(props, current_frame, i, tracked_balls);
     
@@ -43,4 +47,7 @@ for i = 25:87
     end
 	pause(0.5)
 end
+
+total_detections(1:3)
+total_detections(4)/total_detections(1)
 
