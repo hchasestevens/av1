@@ -14,8 +14,8 @@ end
 
 background = imread('bgframe.jpg');
 
-%tracked_balls = {};
-%tracked_balls{87-25} = {}; % 1 set for each frame
+tracked_balls = {};
+tracked_balls{87-25} = {}; % 1 set for each frame
 
 total_detections = zeros(1, 4);
 
@@ -33,7 +33,7 @@ for i = 25:87
     detections = evaluate(i, props);
     total_detections = total_detections + detections;
     
-    %tracked_balls = update_ball_tracking(props, current_frame, i, tracked_balls);
+    tracked_balls = update_ball_tracking(props, current_frame, i, tracked_balls);
     
 	for j = 1:num_balls
 		limits(j) = numel(new_balls(j).row_of_centers);

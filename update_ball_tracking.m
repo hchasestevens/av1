@@ -12,9 +12,15 @@ function [ ball_history ] = update_ball_tracking( current_conn_comps, current_fr
     VX = 1;  % X-velocity
     VY = 1;  % Y-velocity
     VM = 1;  % Velocity magnitude
-    DIST_THRESH = 999999;
+    DIST_THRESH = 250;  % ! Will need some optimization !
     
     num_conn_comps = size(current_conn_comps, 1);  % should be no more than 8 (or 10)
+    
+    are_there_conn_comps = size(current_conn_comps, 2);  % not really sure what's up with this... 
+    if ~are_there_conn_comps
+        return
+    end
+    
     current_frame_hsv = rgb2hsv(current_frame);
     hues = current_frame_hsv(:, :, 1);
     sats = current_frame_hsv(:, :, 2);
@@ -31,19 +37,20 @@ function [ ball_history ] = update_ball_tracking( current_conn_comps, current_fr
         cc_hues = zeros(n_pixels);
         cc_sats = zeros(n_pixels);
         for p_i = 1 : n_pixels
-            [y, x] = cc.PixelList(p_i);
+            y = cc.PixelList(p_i, 1);
+            x = cc.PixelList(p_i, 2);
             cc_hues(p_i) = hues(x, y);
             cc_sats(p_i) = sats(x, y);
         end
-        cc_h = mean(cc_hues);
-        cc_s = mean(cc_sats);
+        cc_h = sum(sum(cc_hues)) / size(cc_hues, 1);  % sum of sums? why?
+        cc_s = sum(sum(cc_sats)) / size(cc_sats, 1);
                 
-        best_match_id = -1;
+        best_match_id = 'NONE';
         best_match_score = -1;
         cc_vx = 0;
         cc_vy = 0;
         cc_vm = 0;
-        for t = MIN_TIME : time
+        for t = MIN_TIME : (time - 1)  % is -1 needed here? (error without)
             n_objects = size(ball_history{t});
             for obj_i = 1 : n_objects
                 obj = ball_history{t}{obj_i};
@@ -70,7 +77,7 @@ function [ ball_history ] = update_ball_tracking( current_conn_comps, current_fr
                     continue
                 end    
                 
-                if distance < best_match_score || best_match_id == -1
+                if (distance < best_match_score) || strcmp(best_match_id, 'NONE')
                     best_match_id = obj.id;
                     best_match_score = distance;
                     cc_vx = temp_cc_vx;
@@ -81,8 +88,9 @@ function [ ball_history ] = update_ball_tracking( current_conn_comps, current_fr
             end
         end
         
-        if best_match_id == -1
+        if strcmp(best_match_id, 'NONE')
             best_match_id = strcat(num2str(time), '-', num2str(cc_i));
+            best_match_id  % for debugging
         end
         
         ball_history{time}{cc_i} = struct( ...
