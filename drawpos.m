@@ -14,6 +14,9 @@ end
 
 background = imread('bgframe.jpg');
 
+%tracked_balls = {};
+%tracked_balls{87-25} = {}; % 1 set for each frame
+
 for i = 25:87
 	filename = [file_name sprintf('%08d', i) file_format];
 	current_frame=imread(filename);
@@ -26,6 +29,8 @@ for i = 25:87
     props = extractForegroundObjects(separate_balls(substracted_frame, current_frame), current_frame);
     drawCentres(props);
     
+    %tracked_balls = update_ball_tracking(props, current_frame, i, tracked_balls);
+    
 	for j = 1:num_balls
 		limits(j) = numel(new_balls(j).row_of_centers);
 		if nextid(j) <= limits(j)
@@ -34,7 +39,7 @@ for i = 25:87
 				plot(new_balls(j).row_of_centers(nextid(j)), new_balls(j).col_of_centers(nextid(j)), 'g+');
 				nextid(j) = nextid(j) + 1;
 			end
-		end
+        end
     end
 	pause(0.5)
 end
