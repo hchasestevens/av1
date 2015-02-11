@@ -39,6 +39,20 @@ In \texttt{separate\_connected\_component}, we convert the given masked image fr
 (Description of \texttt{extractForegroundObjects} goes here).
 
 \subsection{Cross-frame object tracking}
+Having isolated connected components, we then seek to match these to connected components (``objects") from previous frames within the function \texttt{update_ball_tracking}. Each object in the current frame is uniquely mapped to at most one object from previous frames. Matching between objects is performed by first calculating a number of respective properties given the object's connected component, as follows:
+\begin{enumerate}
+\item the \texttt{x} and \texttt{y} coordinates of the connected components's centroid,
+\item the area of the connected component,
+\item the average hue of the pixels comprising the connected component,
+\item the average saturation of the pixels comprising the connected component, and
+\item the time at which the connected component was detected (i.e. the current time).
+\end{enumerate}
+Further to this, the following properties are computed for each current object $obj^{cur}$ with respect to each potential match from a previous frame, $obj^{past}$, were $obj^{cur}$ to be matched with $obj^{past}$:
+\begin{enumerate}
+\item the x-velocity ($(obj_x^{cur} - obj_x^{past}) / (obj_t^{cur} - obj_t^{past})$) and y-velocity ($(obj_y^{cur} - obj_y^{past}) / (obj_t^{cur} - obj_t^{past})$),
+\item the overall object velocity ($\sqrt{obj_vx^{cur}^2 + obj_vy^{cur}^2}$), and
+\item the discrepancy in predicted x-position ($obj_x{past} + obj_vx{past}$) and y-position ($obj_y{past} + obj_vy{past}$).
+\end{enumerate}
 
 \section{Results}
 
