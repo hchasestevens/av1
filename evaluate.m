@@ -27,6 +27,6 @@ function [detections] = evaluate(frame_id, props)
     end
  
     incorrect_detections = size(centers, 1) - correct_detections;
-    detections = [correct_detections incorrect_detections not_detected total_distance];
+    detections = [correct_detections incorrect_detections not_detected total_distance]
 end
 
