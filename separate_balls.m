@@ -1,7 +1,7 @@
-function [ substracted_frame ] = separate_balls( substracted_frame, masked_image )
+function [ background_mask ] = separate_balls( background_mask, current_frame )
     
     % Find all the objects and their properties present in the frame
-    props = regionprops(substracted_frame, 'pixelList', 'BoundingBox', 'Eccentricity', 'Centroid');
+    props = regionprops(background_mask, 'pixelList', 'BoundingBox', 'Eccentricity', 'Centroid');
     % Separate balls from each connected component that seems to have
     % more than one ball in it
     allPixels = int16.empty;
@@ -15,14 +15,14 @@ function [ substracted_frame ] = separate_balls( substracted_frame, masked_image
     
     % Create an image with visible components that might have more than one
     % ball in it
-    current_component = substracted_frame;
-    current_component(substracted_frame ~= -1) = 0;
+    current_component = background_mask;
+    current_component(background_mask ~= -1) = 0;
     for i = 1 : size(allPixels, 1)
         current_component(allPixels(i, 2), allPixels(i, 1)) = 255;
     end
     % Create a mask of these components
     mask = repmat(current_component, [1, 1, 3]);
-    current_masked_image = masked_image;
+    current_masked_image = current_frame;
     current_masked_image(~mask) = 0;
     %hsv_i = rgb2hsv(current_masked_image);
     %imshow(hsv_i)
@@ -33,7 +33,7 @@ function [ substracted_frame ] = separate_balls( substracted_frame, masked_image
     separated_component = separate_connected_component(current_masked_image);
     % Apply changes on the original substracted frame
     for i = 1 : size(allPixels, 1)
-        substracted_frame(allPixels(i, 2), allPixels(i, 1)) = separated_component(allPixels(i, 2), allPixels(i, 1));
+        background_mask(allPixels(i, 2), allPixels(i, 1)) = separated_component(allPixels(i, 2), allPixels(i, 1));
     end
     
 %     mask = repmat(substracted_frame, [1, 1, 3]);
