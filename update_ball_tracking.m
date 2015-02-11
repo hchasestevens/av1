@@ -4,6 +4,8 @@ function [ ball_history ] = update_ball_tracking( current_conn_comps, current_fr
     FRAME_X = size(current_frame, 1);
     FRAME_Y = size(current_frame, 1);
     
+    COLORS = {'red', 'green', 'blue', 'yellow', 'cyan', 'black', 'white', 'magenta'};
+    
     % Distance function parameters - have tried to normalize these to ~1 
     A = 1 / (FRAME_X * FRAME_Y);  % Area
     X = 1 / FRAME_X;  % Centroid X
@@ -115,6 +117,7 @@ function [ ball_history ] = update_ball_tracking( current_conn_comps, current_fr
                     cc_vm = temp_cc_vm;
                     cc_prev_x = obj.x;
                     cc_prev_y = obj.y;
+                    cc_color = obj.color;
                 end
                 
             end
@@ -124,6 +127,8 @@ function [ ball_history ] = update_ball_tracking( current_conn_comps, current_fr
             best_match_id = strcat(num2str(time), '-', num2str(cc_i));
             cc_prev_x = cc_x;
             cc_prev_y = cc_y;
+            color_i = randi(max(size(COLORS)));
+            cc_color = COLORS{color_i};
         else
             % Record object ID as matched, so no other CCs can claim it:
             n_matched_objs = n_matched_objs + 1;
@@ -157,7 +162,8 @@ function [ ball_history ] = update_ball_tracking( current_conn_comps, current_fr
             'vy', cc_vy, ...
             'vm', cc_vm, ...
             'prev_x', cc_prev_x, ...
-            'prev_y', cc_prev_y ...
+            'prev_y', cc_prev_y, ...
+            'color', cc_color ...
         );
     
     end
