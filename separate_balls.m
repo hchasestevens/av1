@@ -52,7 +52,7 @@ function [ balls ] = separate_connected_component(masked_image)
     
     %x_kernel = [1 0 -1; 2 0 -2; 1 0 -1]; % Sobel kernel
     %y_kernel = [1 2 1; 0 0 0; -1 -2 -1]; 
-    x_kernel = [3 0 -3; 10 0 -10; 3 0 -3]; % Sobel kernel
+    x_kernel = [3 0 -3; 10 0 -10; 3 0 -3]; % Scharr variant of Sobel kernel
     y_kernel = [3 10 3; 0 0 0; -3 -10 -3]; 
     
     x_hue_convolved = conv2(hue_values, x_kernel, 'same');
