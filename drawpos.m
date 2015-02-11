@@ -35,6 +35,8 @@ for i = 25:87
     
     tracked_balls = update_ball_tracking(props, current_frame, i, tracked_balls);
     
+    plot_paths(tracked_balls, i);
+    
 	for j = 1:num_balls
 		limits(j) = numel(new_balls(j).row_of_centers);
 		if nextid(j) <= limits(j)
