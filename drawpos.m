@@ -18,6 +18,7 @@ tracked_balls = {};
 tracked_balls{87} = {}; % 1 set for each frame
 
 total_detections = zeros(1, 4);
+bad_frames = [0]; 
 
 for i = 25:87
 	filename = [file_name sprintf('%08d', i) file_format];
@@ -31,6 +32,9 @@ for i = 25:87
     props = extractForegroundObjects(separate_balls(substracted_frame, current_frame), current_frame);
     drawCentres(props);
     detections = evaluate(i, props);
+    if detections(2) ~= 0
+        bad_frames = [bad_frames; i];
+    end
     total_detections = total_detections + detections;
     
     tracked_balls = update_ball_tracking(props, current_frame, i, tracked_balls);
@@ -47,9 +51,7 @@ for i = 25:87
 			end
         end
     end
-
-	pause(0.1)
-
+	pause(3)
 end
 
 clc
@@ -59,4 +61,5 @@ final_plot_paths(tracked_balls);
 
 total_detections(1:3)
 total_detections(4)/total_detections(1)
+bad_frames
 
