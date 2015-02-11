@@ -52,6 +52,11 @@ for i = 25:87
 
 end
 
+clc
+imshow(background);
+hold on
+final_plot_paths(tracked_balls);
+
 total_detections(1:3)
 total_detections(4)/total_detections(1)
 
