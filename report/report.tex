@@ -40,19 +40,29 @@ In \texttt{separate\_connected\_component}, we convert the given masked image fr
 
 \subsection{Cross-frame object tracking}
 Having isolated connected components, we then seek to match these to connected components (``objects") from previous frames within the function \texttt{update\_ball\_tracking}. Each object in the current frame is uniquely mapped to at most one object from previous frames. Matching between objects is performed by first calculating a number of respective properties given the object's connected component, as follows:
-\begin{enumerate}
+\begin{itemize}
 \item the \texttt{x} and \texttt{y} coordinates of the connected components's centroid,
 \item the area of the connected component,
 \item the average hue of the pixels comprising the connected component,
 \item the average saturation of the pixels comprising the connected component, and
 \item the time at which the connected component was detected (i.e. the current time).
-\end{enumerate}
+\end{itemize}
 Further to this, the following properties are computed for each current object $obj^{cur}$ with respect to each potential match from a previous frame, $obj^{past}$, were $obj^{cur}$ to be matched with $obj^{past}$:
-\begin{enumerate}
+\begin{itemize}
 \item the x-velocity ($(obj_x^{cur} - obj_x^{past}) / (obj_t^{cur} - obj_t^{past})$) and y-velocity ($(obj_y^{cur} - obj_y^{past}) / (obj_t^{cur} - obj_t^{past})$),
 \item the overall object velocity ($\sqrt{obj_{vx}^{cur} * obj_{vx}^{cur} + obj_{vy}^{cur} * obj_{vy}^{cur}}$), and
-\item the discrepancy in predicted x-position ($obj_x^{past} + obj_{vx}^{past}$) and y-position ($obj_y^{past} + obj_{vy}^{past}$).
-\end{enumerate}
+\item the predicted x-position ($obj_x^{past} + obj_{vx}^{past}$) and y-position ($obj_y^{past} + obj_{vy}^{past}$).
+\end{itemize}
+For each potential mapping between current and past objects, the mapping is immediately rejected if any of the following is true:
+\begin{itemize}
+\item the past object has already been matched to an object in the current frame
+\item the past object existed too long in the past, as determined by a time thresholding parameter, or
+\item the calculated velocity of the current object if matched to the past object would exceed a set velocity thresholding parameter.
+\end{itemize}
+Otherwise, a cost is calculated for the mapping between objects using the following formula:
+\[
+formula\;goes\;here
+\]
 
 \section{Results}
 
