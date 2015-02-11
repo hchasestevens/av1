@@ -16,17 +16,24 @@
 \begin{document}
 
 \title{Advanced Vision Assignment \# 1}
-\author{Student Numbers s1107496 \& lukas}
+\author{Student Numbers s1107496 \& s1119520}
 
 \maketitle
 
 \section{Introduction}
+In this assignment, we sought to track the motion of various balls over the course of a given video. To facilitate this, we were supplied with a representative background frame of the environment, as well as ground truth positions for each of the balls which could be used to evaluate our program.
 
 \section{Methods}
+
+\subsection{Frame processing pipeline}
+To detect the balls within a frame, the frame went through a number of processing steps, which ultimately resulted in the detection of a number of connected components. These steps are described below.
+\subsubsection{Background subtraction}
+The function \texttt{background\_sub} was used to subtract the supplied background from the current frame, in order to isolate changed regions which potentially might be classified as balls. To achieve this, both the R channels of the RGB versions of the background and current frame and the S channels of the HSV versions of the background and current frame were isolated. For each of these channels, absolute differences between the established background and current frame values were calculated per-pixel, then thresholded using hand-optimized parameters. If a pixel significantly differed in either the R or S channels as per these thresholds, it was considered to be a non-background pixel. Finally, the resultant binary mask had the \texttt{bwmorph} \texttt{erode} and \texttt{close} functions applied to it, as well as \texttt{medfilt2}, in order to clean up stray pixels in the mask.
 
 \section{Results}
 
 \section{Discussion}
+
 
 
 \end{document}

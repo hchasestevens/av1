@@ -1,5 +1,7 @@
 function [] = plot_paths( tracked_balls, time )
 
+    % Adapted from personal code from a previous IVR assignment
+
     INITIAL_TIME = 25;
 
     for t = time : -1 : INITIAL_TIME + 1
@@ -13,7 +15,7 @@ function [] = plot_paths( tracked_balls, time )
                 cur_obj = tracked_balls{time}{obj_j};
 
                 if strcmp(obj.id, cur_obj.id)
-                    draw_line(obj.x, obj.y, obj.prev_x, obj.prev_y); 
+                    draw_line(obj.x, obj.y, obj.prev_x, obj.prev_y, obj.color); 
                     break
                 end
             end
