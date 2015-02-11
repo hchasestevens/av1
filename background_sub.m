@@ -25,8 +25,7 @@ function [ substracted_frame ] = background_sub(current_frame, background)
     substracted_frame = bwmorph(substracted_frame, 'erode', 1);
     substracted_frame = bwmorph(substracted_frame, 'close', Inf);
     substracted_frame = medfilt2(substracted_frame);
-    imshow(substracted_frame)
-    hold on
+    
 %     substracted_frame = bwmorph(substracted_frame, 'clean', 1);
 %     
 %     substracted_frame = medfilt2(substracted_frame);

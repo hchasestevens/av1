@@ -47,7 +47,9 @@ for i = 25:87
 			end
         end
     end
-	pause(0.01)
+
+	pause(5)
+
 end
 
 total_detections(1:3)
