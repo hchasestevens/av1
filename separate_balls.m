@@ -7,7 +7,7 @@ function [ substracted_frame ] = separate_balls( substracted_frame, masked_image
     allPixels = int16.empty;
     for i = 1 : size(props, 1)
         % First check if there might be more than one ball in the component
-        if props(i).Eccentricity < 0.3
+        if props(i).Eccentricity < 0.6
            continue
         end
         allPixels = [allPixels; props(i).PixelList];
@@ -40,8 +40,8 @@ function [ substracted_frame ] = separate_balls( substracted_frame, masked_image
 %     masked_image(~mask) = 0;
 %     
 %     substracted_frame = separate_connected_component(masked_image);
-%     imshow(substracted_frame)
-%     hold on
+    %imshow(substracted_frame)
+    %hold on
 end
 
 function [ balls ] = separate_connected_component(masked_image)
@@ -50,18 +50,21 @@ function [ balls ] = separate_connected_component(masked_image)
     sat_values = hsv_image(:, :, 2);
     greyscale_image = rgb2gray(masked_image);
     
-    x_kernel = [1 0 -1; 2 0 -2; 1 0 -1]; % Sobel kernel
-    y_kernel = [1 2 1; 0 0 0; -1 -2 -1]; 
+    %x_kernel = [1 0 -1; 2 0 -2; 1 0 -1]; % Sobel kernel
+    %y_kernel = [1 2 1; 0 0 0; -1 -2 -1]; 
+    x_kernel = [3 0 -3; 10 0 -10; 3 0 -3]; % Sobel kernel
+    y_kernel = [3 10 3; 0 0 0; -3 -10 -3]; 
+    
     x_hue_convolved = conv2(hue_values, x_kernel, 'same');
     y_hue_convolved = conv2(hue_values, y_kernel, 'same');
     x_sat_convolved = conv2(sat_values, x_kernel, 'same'); 
     y_sat_convolved = conv2(sat_values, y_kernel, 'same');
     
     background = bwmorph(greyscale_image == 0, 'clean', 2);
-    bool_x_hue_convolved = x_hue_convolved > 0.5;
-    bool_y_hue_convolved = y_hue_convolved > 0.5;
-    bool_x_sat_convolved = x_sat_convolved > 0.5;
-    bool_y_sat_convolved = y_sat_convolved > 0.25;
+    bool_x_hue_convolved = x_hue_convolved > 0.9;
+    bool_y_hue_convolved = y_hue_convolved > 0.9;
+    bool_x_sat_convolved = x_sat_convolved > 0.9;
+    bool_y_sat_convolved = y_sat_convolved > 0.9;
     
     balls = bool_x_hue_convolved | ...
             bool_y_hue_convolved | ...
@@ -71,6 +74,8 @@ function [ balls ] = separate_connected_component(masked_image)
       
     balls = ~balls;
         
+    %imshow(balls)
+    %hold on
     balls = bwmorph(balls, 'clean', 1);
     balls = medfilt2(balls);
     balls = bwmorph(balls, 'erode', 1);

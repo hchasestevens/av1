@@ -19,14 +19,14 @@ tracked_balls{87-25} = {}; % 1 set for each frame
 
 total_detections = zeros(1, 4);
 
-for i = 25:87
+for i = 37:37%25:87
 	filename = [file_name sprintf('%08d', i) file_format];
 	current_frame=imread(filename);
 	clc
     substracted_frame = background_sub(current_frame, background);
     
-    %imshow(current_frame);
-    %hold on
+    imshow(current_frame);
+    hold on
        
     props = extractForegroundObjects(separate_balls(substracted_frame, current_frame), current_frame);
     drawCentres(props);
@@ -47,7 +47,7 @@ for i = 25:87
 			end
         end
     end
-	pause(0.5)
+	pause(5)
 end
 
 total_detections(1:3)
