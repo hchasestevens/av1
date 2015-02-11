@@ -25,17 +25,5 @@ function [ substracted_frame ] = background_sub(current_frame, background)
     substracted_frame = bwmorph(substracted_frame, 'erode', 1);
     substracted_frame = bwmorph(substracted_frame, 'close', Inf);
     substracted_frame = medfilt2(substracted_frame);
-    
-%     substracted_frame = bwmorph(substracted_frame, 'clean', 1);
-%     
-%     substracted_frame = medfilt2(substracted_frame);
-%     substracted_frame = bwmorph(substracted_frame, 'erode', 1);
-%     substracted_frame = bwmorph(substracted_frame, 'thicken', 6);
-%     substracted_frame = bwmorph(substracted_frame, 'bridge', 5);
-%     substracted_frame = bwmorph(substracted_frame, 'fill', 1);
-    
-    %imshow(substracted_frame)
-    %hold on
-    
 end
 
