@@ -7,7 +7,7 @@ function [ background_mask ] = separate_balls( background_mask, current_frame )
     allPixels = int16.empty;
     for i = 1 : size(props, 1)
         % First check if there might be more than one ball in the component
-        if props(i).Eccentricity < 0.6
+        if props(i).Eccentricity < 0.65
            continue
         end
         allPixels = [allPixels; props(i).PixelList];
@@ -24,10 +24,6 @@ function [ background_mask ] = separate_balls( background_mask, current_frame )
     mask = repmat(current_component, [1, 1, 3]);
     current_masked_image = current_frame;
     current_masked_image(~mask) = 0;
-    %hsv_i = rgb2hsv(current_masked_image);
-    %imshow(hsv_i)
-    %[X_no_dither,map]= rgb2ind(current_masked_image,4,'nodither');
-    %imshow(X_no_dither, map)
         
     % Separate balls in the components
     separated_component = separate_connected_component(current_masked_image);
@@ -35,13 +31,6 @@ function [ background_mask ] = separate_balls( background_mask, current_frame )
     for i = 1 : size(allPixels, 1)
         background_mask(allPixels(i, 2), allPixels(i, 1)) = separated_component(allPixels(i, 2), allPixels(i, 1));
     end
-    
-%     mask = repmat(substracted_frame, [1, 1, 3]);
-%     masked_image(~mask) = 0;
-%     
-%     substracted_frame = separate_connected_component(masked_image);
-    %imshow(substracted_frame)
-    %hold on
 end
 
 function [ balls ] = separate_connected_component(masked_image)
@@ -50,8 +39,6 @@ function [ balls ] = separate_connected_component(masked_image)
     sat_values = hsv_image(:, :, 2);
     greyscale_image = rgb2gray(masked_image);
   
-    %x_kernel = [1 0 -1; 2 0 -2; 1 0 -1]; % Sobel kernel
-    %y_kernel = [1 2 1; 0 0 0; -1 -2 -1]; 
     x_kernel = [3 0 -3; 10 0 -10; 3 0 -3]; % Sobel kernel
     y_kernel = [3 10 3; 0 0 0; -3 -10 -3]; 
     
@@ -74,16 +61,6 @@ function [ balls ] = separate_connected_component(masked_image)
       
     balls = ~balls;
     balls = medfilt2(balls);
-    balls = bwmorph(balls, 'erode', 1);
-    %imshow(balls)
-    %hold on
-%     balls = bwmorph(balls, 'clean', 1);
-%     
-%     balls = medfilt2(balls);
-%     imshow(balls)
-%     hold on
-%     balls = bwmorph(balls, 'erode', 1);
-%     balls = bwmorph(balls, 'thicken', 2);
-    
+    balls = bwmorph(balls, 'erode', 1);  
 end
 
