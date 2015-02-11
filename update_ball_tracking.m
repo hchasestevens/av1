@@ -18,6 +18,9 @@ function [ ball_history ] = update_ball_tracking( current_conn_comps, current_fr
     VM = 1 / sqrt(FRAME_X * FRAME_Y);  % Velocity magnitude
     DIST_THRESH = 30;  % ! Will need some optimization !
     TIME_THRESH = 1;  % Only look N frames max back in time
+    VM_THRESH = 0.25;
+    
+    ball_history{time} = {};
     
     num_conn_comps = size(current_conn_comps, 1);  % should be no more than 8 (or 10)
     
@@ -72,7 +75,7 @@ function [ ball_history ] = update_ball_tracking( current_conn_comps, current_fr
                         already_matched = 1;
                     end
                 end
-                if already_matched
+                if already_matched == 1
                     continue
                 end
                 
@@ -80,6 +83,10 @@ function [ ball_history ] = update_ball_tracking( current_conn_comps, current_fr
                 temp_cc_vx = (cc_x - obj.x) / (time - t);
                 temp_cc_vy = (cc_y - obj.y) / (time - t);
                 temp_cc_vm = sqrt(temp_cc_vx^2 + temp_cc_vy^2);
+                
+                if temp_cc_vm * VM > VM_THRESH
+                    continue
+                end
                 
                 % Comparison
                 distance = sqrt(...
@@ -153,8 +160,11 @@ function [ ball_history ] = update_ball_tracking( current_conn_comps, current_fr
             'prev_x', cc_prev_x, ...
             'prev_y', cc_prev_y ...
         );
+    
+        matched_obj_ids
     end
-
+    
+    %pause(1)
 
 end
 
