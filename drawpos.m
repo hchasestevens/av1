@@ -47,7 +47,7 @@ for i = 25:87
 			end
         end
     end
-	pause(3)
+	pause(1)
 end
 
 clc
@@ -57,5 +57,4 @@ final_plot_paths(tracked_balls);
 
 total_detections(1:3)
 total_detections(4)/total_detections(1)
-bad_frames
 
