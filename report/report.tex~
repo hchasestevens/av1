@@ -55,7 +55,7 @@ Further to this, the following properties are computed for each current object $
 \end{itemize}
 For each potential mapping between current and past objects, the mapping is immediately rejected if any of the following is true:
 \begin{itemize}
-\item the past object has already been matched to an object in the current frame,
+\item the past object has already been matched to an object in the current frame
 \item the past object existed too long in the past, as determined by a time thresholding parameter, or
 \item the calculated velocity of the current object if matched to the past object would exceed a set velocity thresholding parameter.
 \end{itemize}
