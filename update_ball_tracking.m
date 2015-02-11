@@ -13,6 +13,7 @@ function [ ball_history ] = update_ball_tracking( current_conn_comps, current_fr
     VY = 1;  % Y-velocity
     VM = 1;  % Velocity magnitude
     DIST_THRESH = 250;  % ! Will need some optimization !
+    TIME_THRESH = 1;  % Only look N frames max back in time
     
     num_conn_comps = size(current_conn_comps, 1);  % should be no more than 8 (or 10)
     
@@ -50,7 +51,9 @@ function [ ball_history ] = update_ball_tracking( current_conn_comps, current_fr
         cc_vx = 0;
         cc_vy = 0;
         cc_vm = 0;
-        for t = MIN_TIME : (time - 1)  % is -1 needed here? (error without)
+        cc_prev_x = 0;
+        cc_prev_y = 0;
+        for t = max(MIN_TIME, (time - TIME_THRESH)) : (time - 1)  % is -1 needed here? (error without)
             n_objects = size(ball_history{t});
             for obj_i = 1 : n_objects
                 obj = ball_history{t}{obj_i};
@@ -83,6 +86,8 @@ function [ ball_history ] = update_ball_tracking( current_conn_comps, current_fr
                     cc_vx = temp_cc_vx;
                     cc_vy = temp_cc_vy;
                     cc_vm = temp_cc_vm;
+                    cc_prev_x = obj.x;
+                    cc_prev_y = obj.y;
                 end
                 
             end
@@ -90,7 +95,24 @@ function [ ball_history ] = update_ball_tracking( current_conn_comps, current_fr
         
         if strcmp(best_match_id, 'NONE')
             best_match_id = strcat(num2str(time), '-', num2str(cc_i));
+            cc_prev_x = cc_x;
+            cc_prev_y = cc_y;
             best_match_id  % for debugging
+        else
+            % Commented out for now... with big enough emphasis on T comp.
+            % or limit how far back in time matching can occur, hopefully
+            % this will not be needed
+            %for t = MIN_TIME : (time - 1)
+            %    n_objects = size(ball_history{t});
+            %    for obj_i = 1 : n_objects
+            %        obj = ball_history{t}{obj_i};
+            %        if strcmp(obj.id, best_match_id)
+            %            % Get most recent location of object
+            %            cc_prev_x = obj.x;
+            %            cc_prev_y = obj.y;
+            %        end
+            %    end
+            %end
         end
         
         ball_history{time}{cc_i} = struct( ...
@@ -103,7 +125,9 @@ function [ ball_history ] = update_ball_tracking( current_conn_comps, current_fr
             's', cc_s, ...
             'vx', cc_vx, ...
             'vy', cc_vy, ...
-            'vm', cc_vm ...
+            'vm', cc_vm, ...
+            'prev_x', cc_prev_x, ...
+            'prev_y', cc_prev_y ...
         );
     end
 
