@@ -18,7 +18,7 @@ function [ ball_history ] = update_ball_tracking( current_conn_comps, current_fr
     VM = 1 / sqrt(FRAME_X * FRAME_Y);  % Velocity magnitude
     DIST_THRESH = 30;  % ! Will need some optimization !
     TIME_THRESH = 1;  % Only look N frames max back in time
-    VM_THRESH = 0.25;
+    VM_THRESH = 0.25;  % Objects can only move this percentage of the frame per time unit
     
     ball_history{time} = {};
     
@@ -64,7 +64,7 @@ function [ ball_history ] = update_ball_tracking( current_conn_comps, current_fr
         cc_prev_x = 0;
         cc_prev_y = 0;
         for t = max(MIN_TIME, (time - TIME_THRESH)) : (time - 1)  % is -1 needed here? (error without)
-            n_objects = size(ball_history{t});
+            n_objects = max(size(ball_history{t}));
             for obj_i = 1 : n_objects
                 obj = ball_history{t}{obj_i};
                 
@@ -124,7 +124,6 @@ function [ ball_history ] = update_ball_tracking( current_conn_comps, current_fr
             best_match_id = strcat(num2str(time), '-', num2str(cc_i));
             cc_prev_x = cc_x;
             cc_prev_y = cc_y;
-            best_match_id  % for debugging
         else
             % Record object ID as matched, so no other CCs can claim it:
             n_matched_objs = n_matched_objs + 1;
@@ -161,10 +160,7 @@ function [ ball_history ] = update_ball_tracking( current_conn_comps, current_fr
             'prev_y', cc_prev_y ...
         );
     
-        matched_obj_ids
     end
-    
-    %pause(1)
 
 end
 
