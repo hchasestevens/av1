@@ -49,7 +49,7 @@ function [ balls ] = separate_connected_component(masked_image)
     hue_values = hsv_image(:, :, 1);
     sat_values = hsv_image(:, :, 2);
     greyscale_image = rgb2gray(masked_image);
-    
+  
     %x_kernel = [1 0 -1; 2 0 -2; 1 0 -1]; % Sobel kernel
     %y_kernel = [1 2 1; 0 0 0; -1 -2 -1]; 
     x_kernel = [3 0 -3; 10 0 -10; 3 0 -3]; % Sobel kernel
@@ -63,7 +63,7 @@ function [ balls ] = separate_connected_component(masked_image)
     background = bwmorph(greyscale_image == 0, 'clean', 2);
     bool_x_hue_convolved = x_hue_convolved > 0.9;
     bool_y_hue_convolved = y_hue_convolved > 0.9;
-    bool_x_sat_convolved = x_sat_convolved > 0.9;
+    bool_x_sat_convolved = x_sat_convolved > 1;
     bool_y_sat_convolved = y_sat_convolved > 0.9;
     
     balls = bool_x_hue_convolved | ...
@@ -73,12 +73,17 @@ function [ balls ] = separate_connected_component(masked_image)
             background;
       
     balls = ~balls;
-        
-    %imshow(balls)
-    %hold on
-    balls = bwmorph(balls, 'clean', 1);
     balls = medfilt2(balls);
     balls = bwmorph(balls, 'erode', 1);
-    balls = bwmorph(balls, 'thicken', 2);
+    %imshow(balls)
+    %hold on
+%     balls = bwmorph(balls, 'clean', 1);
+%     
+%     balls = medfilt2(balls);
+%     imshow(balls)
+%     hold on
+%     balls = bwmorph(balls, 'erode', 1);
+%     balls = bwmorph(balls, 'thicken', 2);
+    
 end
 
