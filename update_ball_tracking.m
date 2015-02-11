@@ -1,18 +1,20 @@
 function [ ball_history ] = update_ball_tracking( current_conn_comps, current_frame, time, ball_history )
 
     MIN_TIME = 25;
+    FRAME_X = size(current_frame, 1);
+    FRAME_Y = size(current_frame, 1);
     
-    % Distance function parameters
-    A = 1;  % Area
-    X = 1;  % Centroid X
-    Y = 1;  % Centroid Y
+    % Distance function parameters - have tried to normalize these to ~1 
+    A = 1 / (FRAME_X * FRAME_Y);  % Area
+    X = 1 / FRAME_X;  % Centroid X
+    Y = 1 / FRAME_Y;  % Centroid Y
     T = 1;  % Time
     H = 1;  % Avg. hue
     S = 1;  % Avg. saturation
-    VX = 1;  % X-velocity
-    VY = 1;  % Y-velocity
-    VM = 1;  % Velocity magnitude
-    DIST_THRESH = 250;  % ! Will need some optimization !
+    VX = 1 / FRAME_X;  % X-velocity
+    VY = 1 / FRAME_Y;  % Y-velocity
+    VM = 1 / sqrt(FRAME_X * FRAME_Y);  % Velocity magnitude
+    DIST_THRESH = 30;  % ! Will need some optimization !
     TIME_THRESH = 1;  % Only look N frames max back in time
     
     num_conn_comps = size(current_conn_comps, 1);  % should be no more than 8 (or 10)
@@ -25,6 +27,9 @@ function [ ball_history ] = update_ball_tracking( current_conn_comps, current_fr
     current_frame_hsv = rgb2hsv(current_frame);
     hues = current_frame_hsv(:, :, 1);
     sats = current_frame_hsv(:, :, 2);
+    
+    matched_obj_ids = {};
+    n_matched_objs = 0;
     
     for cc_i = 1 : num_conn_comps
         cc = current_conn_comps(cc_i);
@@ -57,6 +62,17 @@ function [ ball_history ] = update_ball_tracking( current_conn_comps, current_fr
             n_objects = size(ball_history{t});
             for obj_i = 1 : n_objects
                 obj = ball_history{t}{obj_i};
+                
+                % Enforce 1-to-1 mappings ... "first come, first served"
+                already_matched = 0;
+                for i = 1 : n_matched_objs
+                    if strcmp(obj.id, matched_obj_ids{i})
+                        already_matched = 1;
+                    end
+                end
+                if already_matched
+                    continue
+                end
                 
                 % Get proposed ball vector properties
                 temp_cc_vx = (cc_x - obj.x) / (time - t);
@@ -99,6 +115,10 @@ function [ ball_history ] = update_ball_tracking( current_conn_comps, current_fr
             cc_prev_y = cc_y;
             best_match_id  % for debugging
         else
+            % Record object ID as matched, so no other CCs can claim it:
+            n_matched_objs = n_matched_objs + 1;
+            matched_obj_ids{n_matched_objs} = best_match_id;
+            
             % Commented out for now... with big enough emphasis on T comp.
             % or limit how far back in time matching can occur, hopefully
             % this will not be needed
