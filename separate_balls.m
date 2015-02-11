@@ -39,7 +39,7 @@ function [ balls ] = separate_connected_component(masked_image)
     sat_values = hsv_image(:, :, 2);
     greyscale_image = rgb2gray(masked_image);
   
-    x_kernel = [3 0 -3; 10 0 -10; 3 0 -3]; % Sobel kernel
+    x_kernel = [3 0 -3; 10 0 -10; 3 0 -3]; % Scharr variant of Sobel kernel
     y_kernel = [3 10 3; 0 0 0; -3 -10 -3]; 
     
     x_hue_convolved = conv2(hue_values, x_kernel, 'same');
