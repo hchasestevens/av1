@@ -48,7 +48,7 @@ for i = 25:87
         end
     end
 
-	pause(5)
+	pause(0.1)
 
 end
 

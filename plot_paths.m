@@ -2,7 +2,6 @@ function [] = plot_paths( tracked_balls, time )
 
     INITIAL_TIME = 25;
     
-    colors = {'red', 'green', 'blue', 'yellow', 'orange', 'cyan', 'black', 'purple', 'white', 'magenta'};
     n_lines = 0;
 
     for t = time : -1 : INITIAL_TIME + 1
