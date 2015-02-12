@@ -78,7 +78,7 @@ We also made the decision to use a non-probabilistic approach to background/fore
 \begin{appendices}
 \section{Source code}
 
-\textbf{drawpos.m}
+\subsection{drawpos.m}
 \begin{verbatim}
 load balls_loc.mat
 
@@ -141,7 +141,7 @@ total_detections(1:3)
 total_detections(4)/total_detections(1)
 \end{verbatim}
 
-\textbf{background\_sub.m}
+\subsection{background\_sub.m}
 \begin{verbatim}
 function [ substracted_frame ] = background_sub(current_frame, background)
 
@@ -172,7 +172,7 @@ function [ substracted_frame ] = background_sub(current_frame, background)
 end
 \end{verbatim}
 
-\textbf{draw\_line.m}
+\subsection{draw\_line.m}
 \begin{verbatim}
 function [] = draw_line( x1, y1, x2, y2, color )
 
@@ -185,7 +185,7 @@ function [] = draw_line( x1, y1, x2, y2, color )
 end
 \end{verbatim}
 
-\textbf{draw\_truth.m}
+\subsection{draw\_truth.m}
 \begin{verbatim}
 load balls_loc.mat
 background = imread('bgframe.jpg');
@@ -207,7 +207,7 @@ for i = 1:num_balls
 end
 \end{verbatim}
 
-\textbf{drawCentres.m}
+\subsection{drawCentres.m}
 \begin{verbatim}
 function drawCentres(props)
     centres = cat(1, props.Centroid);
@@ -223,7 +223,7 @@ function drawCentres(props)
 end
 \end{verbatim}
 
-\textbf{evaluate.m}
+\subsection{evaluate.m}
 \begin{verbatim}
 function [detections] = evaluate(frame_id, props)
     load balls_loc.mat
@@ -258,7 +258,7 @@ function [detections] = evaluate(frame_id, props)
 end
 \end{verbatim}
 
-\textbf{extractForegroundObjects.m}
+\subsection{extractForegroundObjects.m}
 \begin{verbatim}
 function [ top_props ] = extractForegroundObjects(foreground, current_frame)
     MIN_AREA = 50;
@@ -318,7 +318,7 @@ function [ top_props ] = extractForegroundObjects(foreground, current_frame)
 end
 \end{verbatim}
 
-\textbf{final\_plot\_paths.m}
+\subsection{final\_plot\_paths.m}
 \begin{verbatim}
 function [] = final_plot_paths( tracked_balls )
 
@@ -338,7 +338,7 @@ function [] = final_plot_paths( tracked_balls )
 end
 \end{verbatim}
 
-\textbf{plot\_paths.m}
+\subsection{plot\_paths.m}
 \begin{verbatim}
 function [] = plot_paths( tracked_balls, time )
 
@@ -366,7 +366,7 @@ function [] = plot_paths( tracked_balls, time )
 end
 \end{verbatim}
 
-\textbf{separate\_balls.m}
+\subsection{separate\_balls.m}
 \begin{verbatim}
 function [ background_mask ] = separate_balls( background_mask, current_frame )
     
@@ -435,7 +435,7 @@ function [ balls ] = separate_connected_component(masked_image)
 end
 \end{verbatim}
 
-\textbf{update\_ball\_tracking.m}
+\subsection{update\_ball\_tracking.m}
 
 \begin{verbatim}
 function [ ball_history ] = update_ball_tracking( current_conn_comps, current_frame, time, ball_history )
