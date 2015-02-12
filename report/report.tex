@@ -116,7 +116,14 @@ correct detections & incorrect detections & not detected & mean distance \\ \mid
 
 As we can see from the table above, we managed to correctly recognize 241 balls within 10 pixel distance with a mean distance just under 2.6 pixels. Our ball detector managed not to make any mistakes while recognizing the balls and, hence did not make any false detections.
 
-Unfortunatelly, more than 30 balls could not be detected. Majority of these cases include either white ball being on top of white table where it is hard to capture it without recognizing any other additional noise or small ball on the ground where they are so small that are removed. Decreasing the minimum component size would not work since it includes lots of false detections. 
+Unfortunatelly, more than 30 balls could not be detected. Majority of these cases include either white ball being on top of white table or orange ball present over brown background where it is hard to capture it without recognizing any other additional noise or small ball on the ground where they are so small that are removed. Decreasing the minimum component size would not work since it includes lots of false detections. 
+
+\begin{figure}
+	\centering
+    \includegraphics[width=140mm]{mistakes/frame_55_missed_ball.png}
+    \caption{Brown looking orange ball over brown background could not be detected}
+	\label{my-label06}
+\end{figure} 
 
 \subsection{Object tracking}
 We have also evaluated our tracker. We found the number of correct and erroneous pairings as well as the percentage of ball detections that belong to trajectories with only 1 detection. We have also drawn an image of all ground truth trajectories on top of a background image \texttt{bgframe.jpg} as well as a separate image showing each of our predicted trajectories. By comparing these two images we made final tracking evaluation and calculated the number of tracked trajectories for each of the 10 balls. The results are shown in the table below:
@@ -134,6 +141,14 @@ correct pairings & erroneous pairings & ?? & ?? \\ \midrule
 
 \begin{figure}
 	\centering
+    \includegraphics[width=140mm]{mistakes/tracking_breaks.png}
+    \caption{Situation where our tracking breaks for white ball}
+	\label{my-label06}
+\end{figure} 
+
+
+\begin{figure}
+	\centering
     \includegraphics[width=140mm]{ground_truth_trajectories.png}
     \caption{Ground truth trajectories drawn on top of the background image}
 	\label{my-label05}
@@ -141,7 +156,7 @@ correct pairings & erroneous pairings & ?? & ?? \\ \midrule
 
 \begin{figure}
 	\centering
-    \includegraphics[width=140mm]{our_tracking.png}
+    \includegraphics[width=140mm]{trajectories.png}
     \caption{Our predicted ball trajectories drawn on top of the background image}
 	\label{my-label06}
 \end{figure} 
