@@ -72,10 +72,10 @@ While minimizing the costs across all possible mappings constitutes an optimizat
 Evaluation has been done in two steps. We evaluated our code's ability to recognize balls in each frame and the performance of the tracker. The results are explained in the next two subsections.
 
 \subsection{Object recognition}
-When we get the final list of objects recognized as balls, we then call our evaluation function \texttt{evaluate} that calculates the number of balls that were detected within 10 pixels of any ground truth, the mean distance between the ground truth and estimated centres for all such balls within the 10 pixel distance threshold, the number of false ball detections and the number of balls that were not detected. Results are present in the following table:
+When we get the final list of objects recognized as balls, we then call our evaluation function \texttt{evaluate} that calculates the number of balls that were detected within 10 pixels of any ground truth, the mean distance between the ground truth and estimated centres for all such balls within the 10 pixel distance threshold, the number of false ball detections and the number of balls that were not detected. Results are presented in the following table:
 
 \begin{table}[h]
-\centerings
+\centering
 \begin{tabular}{@{}cccc@{}}
 \toprule
 correct detections & incorrect detections & not detected & mean distance \\ \midrule
@@ -87,9 +87,10 @@ correct detections & incorrect detections & not detected & mean distance \\ \mid
 
 As we can see from the table above, we managed to correctly recognize 241 balls within 10 pixel distance with a mean distance just under 2.6 pixels. Our ball detector managed not to make any mistakes while recognizing the balls and, hence did not make any false detections.
 
-Unfortunatelly, more than 30 balls could not be detected. Majority of these cases include either white ball being on top of white table where it is hard to capture it without recognizing any other additional noise or small ball on the ground where they are so small that are removed. Lowering the minimum component size would not work since it includes lots of false detections. 
+Unfortunatelly, more than 30 balls could not be detected. Majority of these cases include either white ball being on top of white table where it is hard to capture it without recognizing any other additional noise or small ball on the ground where they are so small that are removed. Decreasing the minimum component size would not work since it includes lots of false detections. 
 
 \subsection{Object tracking}
+
 
 \section{Discussion}
 In this assignment we made the decision to eschew the condensity approach as presented in the lectures, as this was deemed needlessly complex for the requisite task. Although our tracking worked well in many situations, the implementation of condensity-based tracking may have better resolved issues with object tracking in the beginning of the video, as well as in later incidents in which our tracking/object linking system proved too brittle to handle tracking across more than two frames.
