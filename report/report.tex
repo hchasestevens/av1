@@ -166,7 +166,8 @@ function [ substracted_frame ] = background_sub(current_frame, background)
     x = size(current_frame, 2);
     
     % Create a mask for moving objects
-    diff = ((abs(r_current_frame - r_background) > 25) | (abs(s_current_frame - s_background)) > 0.25);
+    diff = ((abs(r_current_frame - r_background) > 25) |...
+     (abs(s_current_frame - s_background)) > 0.25);
     
     substracted_frame = zeros(y, x);
     
@@ -473,7 +474,8 @@ function [ ball_history ] = update_ball_tracking( ...
     [139/255, 69/255, 19/255], [1, 140/255, 0], [0, 100/255, 0],...
     [1, 222/255, 173/255]};
     
-    % Distance function parameters - have tried to normalize these to ~1 
+    % Distance function parameters - 
+    % have tried to normalize these to ~1 
     A = 1 / (FRAME_X * FRAME_Y);  % Area
     X = 1 / FRAME_X;  % Centroid X
     Y = 1 / FRAME_Y;  % Centroid Y
@@ -487,13 +489,15 @@ function [ ball_history ] = update_ball_tracking( ...
     VM = 1 / sqrt(FRAME_X * FRAME_Y);  % Velocity magnitude
     DIST_THRESH = 30;  % ! Will need some optimization !
     TIME_THRESH = 1;  % Only look N frames max back in time
-    VM_THRESH = 0.25;  % Objects can only move this percentage of the frame per time unit
+    VM_THRESH = 0.25;  % Objects can only move this percentage of 
+                       % the frame per time unit
     
     ball_history{time} = {};
     
     num_conn_comps = size(current_conn_comps, 1);  % should be no more than 10
     
-    are_there_conn_comps = size(current_conn_comps, 2);  % not really sure what's up with this... 
+    % not really sure what's up with this... 
+    are_there_conn_comps = size(current_conn_comps, 2);  
     if ~are_there_conn_comps
         return
     end
