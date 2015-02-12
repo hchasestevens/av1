@@ -63,14 +63,16 @@ For each potential mapping between current and past objects, the mapping is imme
 \item the past object existed too long in the past, as determined by a time thresholding parameter, or
 \item the calculated velocity of the current object if matched to the past object would exceed a set velocity thresholding parameter.
 \end{itemize}
-Otherwise, a cost is calculated for the mapping between objects using the following formula:
-\[
-formula\;goes\;here
-\]
+Otherwise, a cost is calculated for the mapping between objects by calculating a Euclidean distance between these properties in n-dimensional space, with each component approximately normalized to a value of 1 (e.g. $obj_{x}$ is divided by the width of the frame). Should this cost exceed a predetermined threshold, the mapping is discarded.
+
+While minimizing the costs across all possible mappings constitutes an optimization problem, for the sake of simplicity we instead utilize a greedy ``first come, first served" approach whereby the first found connected component/object is paired with the best past object not violating any of the above constraints, the second paired with any past object not including that matched to the first object, \textit{et cetera}. Finally, these mappings are used to determine \texttt{prev\_x} and \texttt{prev\_y} properties for the current objects, which are used when plotting object paths.
 
 \section{Results}
 
 \section{Discussion}
+In this assignment we made the decision to eschew the condensity approach as presented in the lectures, as this was deemed needlessly complex for the requisite task. Although our tracking worked well in many situations, the implementation of condensity-based tracking may have better resolved issues with object tracking in the beginning of the video, as well as in later incidents in which our tracking/object linking system proved too brittle to handle tracking across more than two frames.
+
+We also made the decision to use a non-probabilistic approach to background/foreground separation, especially having been given an example background frame. We did not feel this hindered our solution in any way, as our frame processing seemed quite robust, but it may have been useful to have explored a probabilistic approach in order to evaluate its advantages more concretely. 
 
 
 
