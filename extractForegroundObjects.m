@@ -6,7 +6,7 @@ function [ top_props ] = extractForegroundObjects(foreground, current_frame)
     current_frame_greyscale = rgb2gray(current_frame);
     
     % Find all the balls and their properties present in the frame
-    props = regionprops(foreground, 'centroid', 'area', 'EquivDiameter', 'pixelList', 'ConvexArea');
+    props = regionprops(foreground, 'centroid', 'area', 'EquivDiameter', 'pixelList');
     
     % Remove small or dark objects (noise)
     rm = [];
