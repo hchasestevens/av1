@@ -4,7 +4,7 @@ function [ ball_history ] = update_ball_tracking( current_conn_comps, current_fr
     FRAME_X = size(current_frame, 1);
     FRAME_Y = size(current_frame, 1);
     
-    COLORS = {'red', 'green', 'blue', 'yellow', 'cyan', 'black', 'white', 'magenta'};
+    COLORS = {'red', 'green', 'blue', 'yellow', 'cyan', 'black', 'white', [255/255, 20/255, 147/255], [160/255, 32/255, 240/255], [139/255, 69/255, 19/255], [1, 140/255, 0], [0, 100/255, 0], [1, 222/255, 173/255]};
     
     % Distance function parameters - have tried to normalize these to ~1 
     A = 1 / (FRAME_X * FRAME_Y);  % Area
