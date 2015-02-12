@@ -71,5 +71,537 @@ In this assignment we made the decision to eschew the condensity approach as pre
 We also made the decision to use a non-probabilistic approach to background/foreground separation, especially having been given an example background frame. We did not feel this hindered our solution in any way, as our frame processing seemed quite robust, but it may have been useful to have explored a probabilistic approach in order to evaluate its advantages more concretely. 
 
 
+\begin{appendices}
+\chapter{\texttt{drawpos.m}}
+\begin{verbatim}
+load balls_loc.mat
+
+num_balls = size(new_balls,2);
+present = zeros(1, num_balls);
+limits  = zeros(1, num_balls);
+nextid  = ones(1, num_balls);
+ball_name = {'white 1', 'white 2', 'pink 1', 'pink 2', 'orange 1', 'orange 2', 'orange 3', 'orange 4', 'orange 5', 'orange 6'};
+file_name='./set1/';
+file_format='.jpg';
+
+for i = 1:num_balls
+	limits(i) = numel(new_balls(i).row_of_centers);
+end
+
+background = imread('bgframe.jpg');
+
+tracked_balls = {};
+tracked_balls{87} = {}; % 1 set for each frame
+
+total_detections = zeros(1, 4);
+
+for i = 25:87
+	filename = [file_name sprintf('%08d', i) file_format];
+	current_frame=imread(filename);
+	clc
+    substracted_frame = background_sub(current_frame, background);
+    
+    imshow(current_frame);
+    hold on
+       
+    props = extractForegroundObjects(separate_balls(substracted_frame, current_frame), current_frame);
+    drawCentres(props);
+    detections = evaluate(i, props);
+    total_detections = total_detections + detections;
+    
+    tracked_balls = update_ball_tracking(props, current_frame, i, tracked_balls);
+    
+    plot_paths(tracked_balls, i);
+    
+	for j = 1:num_balls
+		limits(j) = numel(new_balls(j).row_of_centers);
+		if nextid(j) <= limits(j)
+			if new_balls(j).frame_numbers(nextid(j)) == i
+				text(new_balls(j).row_of_centers(nextid(j)), new_balls(j).col_of_centers(nextid(j)), ball_name{j}, 'Clipping', 'on', 'Color', 'cyan');
+				plot(new_balls(j).row_of_centers(nextid(j)), new_balls(j).col_of_centers(nextid(j)), 'g+');
+				nextid(j) = nextid(j) + 1;
+			end
+        end
+    end
+	pause(1)
+end
+
+clc
+imshow(background);
+hold on
+final_plot_paths(tracked_balls);
+
+total_detections(1:3)
+total_detections(4)/total_detections(1)
+\end{verbatim}
+
+\chapter{\texttt{background\_sub.m}}
+\begin{verbatim}
+function [ substracted_frame ] = background_sub(current_frame, background)
+
+    % Get R values from RGB frame
+    r_current_frame = current_frame(:, :, 1);
+    r_background = background(:, :, 1);
+    
+    current_frame = rgb2hsv(current_frame);
+    background = rgb2hsv(background);
+    
+    % Get S values from HSV frame
+    s_current_frame = current_frame(:, :, 2);
+    s_background = background(:, :, 2);
+    
+    y = size(current_frame, 1);
+    x = size(current_frame, 2);
+    
+    % Create a mask for moving objects
+    diff = ((abs(r_current_frame - r_background) > 25) | (abs(s_current_frame - s_background)) > 0.25);
+    
+    substracted_frame = zeros(y, x);
+    
+    substracted_frame(diff) = 255;
+    
+    substracted_frame = bwmorph(substracted_frame, 'erode', 1);
+    substracted_frame = bwmorph(substracted_frame, 'close', Inf);
+    substracted_frame = medfilt2(substracted_frame);
+end
+\end{verbatim}
+
+\chapter{\texttt{draw\_line.m}}
+\begin{verbatim}
+function [] = draw_line( x1, y1, x2, y2, color )
+
+    % Adapted from personal code from a previous IVR assignment
+	
+    x_points = linspace(x1, x2, 50);  
+    y_points = linspace(y1, y2, 50); 
+    plot(x_points, y_points, 'Color', color);
+    
+end
+\end{verbatim}
+
+\chapter{\texttt{draw\_truth.m}}
+\begin{verbatim}
+load balls_loc.mat
+background = imread('bgframe.jpg');
+imshow(background)
+hold on
+
+COLORS = {'red', 'green', 'blue', 'yellow', 'cyan', 'white', [255/255, 20/255, 147/255], [160/255, 32/255, 240/255], [139/255, 69/255, 19/255], [1, 140/255, 0]};
+
+num_balls = size(new_balls,2);
+
+for i = 1:num_balls
+    previous = new_balls(i).frame_numbers(1);
+    for j = 2:size(new_balls(i).frame_numbers, 1)
+        if previous + 1 == new_balls(i).frame_numbers(j)
+            draw_line(new_balls(i).row_of_centers(j), new_balls(i).col_of_centers(j), new_balls(i).row_of_centers(j-1), new_balls(i).col_of_centers(j-1), COLORS{i})
+        end
+        previous = new_balls(i).frame_numbers(j);
+    end
+end
+\end{verbatim}
+
+\chapter{\texttt{drawCentres.m}}
+\begin{verbatim}
+function drawCentres(props)
+    centres = cat(1, props.Centroid);
+    diameters = cat(1, props.EquivDiameter);
+    % Draw centres of the objects
+    for i = 1 : size(centres, 1)
+        ang = 0:0.01:2*pi; 
+        r = diameters(i)/2;
+        xp = r*cos(ang);
+        yp = r*sin(ang);
+        plot(centres(i, 1)+xp, centres(i, 2)+yp, 'LineWidth', 2, 'Color', [1 0 0]); 
+    end
+end
+\end{verbatim}
+
+\chapter{\texttt{evaluate.m}}
+\begin{verbatim}
+function [detections] = evaluate(frame_id, props)
+    load balls_loc.mat
+    num_balls = size(new_balls,2);
+    centers = cat(1, props.Centroid);
+    
+    correct_detections = 0;
+    not_detected = 0;
+    total_distance = 0;
+    for i = 1:num_balls
+        pos_index = find(new_balls(i).frame_numbers == frame_id);
+        if isempty(pos_index)
+            continue;
+        end
+        found_match = 0;
+        for j = 1 : size(centers, 1)
+            distance = norm(centers(j, :) - [new_balls(i).row_of_centers(pos_index) new_balls(i).col_of_centers(pos_index)]);
+            if distance <= 10
+                total_distance = total_distance + distance;
+                correct_detections = correct_detections + 1;
+                found_match = 1;
+                break;
+            end
+        end
+        if ~found_match
+            not_detected = not_detected + 1;
+        end
+    end
+ 
+    incorrect_detections = size(centers, 1) - correct_detections;
+    detections = [correct_detections incorrect_detections not_detected total_distance]
+end
+\end{verbatim}
+
+\chapter{\texttt{extractForegroundObjects.m}}
+\begin{verbatim}
+function [ top_props ] = extractForegroundObjects(foreground, current_frame)
+    MIN_AREA = 50;
+    MIN_LUMINOSITY = 40;
+    NUMBER_OF_BALLS = 10;
+    
+    current_frame_greyscale = rgb2gray(current_frame);
+    
+    % Find all the balls and their properties present in the frame
+    props = regionprops(foreground, 'centroid', 'area', 'EquivDiameter', 'pixelList');
+    
+    % Remove small or dark objects (noise)
+    rm = [];
+    for i = 1 : length(props)
+       % small
+       if props(i).Area < MIN_AREA
+          rm = [rm i];
+          continue
+       end
+       
+       % dark
+       n_pixels = size(props(i).PixelList, 1);
+       pixel_bw = zeros(n_pixels, 1);
+       
+       for p_i = 1 : n_pixels
+           x = props(i).PixelList(p_i, 1);
+           y = props(i).PixelList(p_i, 2);
+           pixel_bw(p_i) = current_frame_greyscale(y, x);
+       end
+       
+       if mean(pixel_bw) < MIN_LUMINOSITY
+           rm = [rm i];
+       end
+       
+    end
+    
+    props(rm) = [];
+    
+    % Find only 8-10 largest
+    number_to_add = min(size(props, 1), NUMBER_OF_BALLS); 
+    areas = cat(1, props.Area);
+    if isempty(areas)
+        top_props = props;
+    else
+        sorted_areas = sort(areas, 'descend');
+        minimum_area = sorted_areas(number_to_add);
+    
+        top_props = props(1:number_to_add);
+        k = 1;
+        for i = 1 : size(props, 1)
+            if props(i).Area >= minimum_area && k <= number_to_add
+                top_props(k) = props(i);
+                k = k + 1;
+            end
+        end
+    end
+end
+\end{verbatim}
+
+\chapter{\texttt{final\_plot\_paths.m}}
+\begin{verbatim}
+function [] = final_plot_paths( tracked_balls )
+
+    % Adapted from personal code from a previous IVR assignment
+
+    INITIAL_TIME = 25;
+    FINAL_TIME = 87;
+
+    for t = FINAL_TIME : -1 : INITIAL_TIME + 1
+        num_objects = max(size(tracked_balls{t}));
+
+        for obj_i = 1 : num_objects
+            obj = tracked_balls{t}{obj_i};
+            draw_line(obj.x, obj.y, obj.prev_x, obj.prev_y, obj.color); 
+        end
+    end
+end
+\end{verbatim}
+
+\chapter{\texttt{plot\_paths.m}}
+\begin{verbatim}
+function [] = plot_paths( tracked_balls, time )
+
+    % Adapted from personal code from a previous IVR assignment
+
+    INITIAL_TIME = 25;
+
+    for t = time : -1 : INITIAL_TIME + 1
+        num_objects = max(size(tracked_balls{t}));
+
+        for obj_i = 1 : num_objects
+            obj = tracked_balls{t}{obj_i};
+            
+            cur_object_count = max(size(tracked_balls{time}));
+            for obj_j = 1 : cur_object_count
+                cur_obj = tracked_balls{time}{obj_j};
+
+                if strcmp(obj.id, cur_obj.id)
+                    draw_line(obj.x, obj.y, obj.prev_x, obj.prev_y, obj.color); 
+                    break
+                end
+            end
+        end
+    end
+end
+\end{verbatim}
+
+\chapter{\texttt{separate\_balls.m}}
+\begin{verbatim}
+function [ background_mask ] = separate_balls( background_mask, current_frame )
+    
+    % Find all the objects and their properties present in the frame
+    props = regionprops(background_mask, 'pixelList', 'BoundingBox', 'Eccentricity', 'Centroid');
+    % Separate balls from each connected component that seems to have
+    % more than one ball in it
+    allPixels = int16.empty;
+    for i = 1 : size(props, 1)
+        % First check if there might be more than one ball in the component
+        if props(i).Eccentricity < 0.65
+           continue
+        end
+        allPixels = [allPixels; props(i).PixelList];
+    end
+    
+    % Create an image with visible components that might have more than one
+    % ball in it
+    current_component = background_mask;
+    current_component(background_mask ~= -1) = 0;
+    for i = 1 : size(allPixels, 1)
+        current_component(allPixels(i, 2), allPixels(i, 1)) = 255;
+    end
+    % Create a mask of these components
+    mask = repmat(current_component, [1, 1, 3]);
+    current_masked_image = current_frame;
+    current_masked_image(~mask) = 0;
+        
+    % Separate balls in the components
+    separated_component = separate_connected_component(current_masked_image);
+    % Apply changes on the original substracted frame
+    for i = 1 : size(allPixels, 1)
+        background_mask(allPixels(i, 2), allPixels(i, 1)) = separated_component(allPixels(i, 2), allPixels(i, 1));
+    end
+end
+
+function [ balls ] = separate_connected_component(masked_image)
+    hsv_image = rgb2hsv(masked_image);
+    hue_values = hsv_image(:, :, 1);
+    sat_values = hsv_image(:, :, 2);
+    greyscale_image = rgb2gray(masked_image);
+  
+    x_kernel = [3 0 -3; 10 0 -10; 3 0 -3]; % Scharr variant of Sobel kernel
+    y_kernel = [3 10 3; 0 0 0; -3 -10 -3]; 
+    
+    x_hue_convolved = conv2(hue_values, x_kernel, 'same');
+    y_hue_convolved = conv2(hue_values, y_kernel, 'same');
+    x_sat_convolved = conv2(sat_values, x_kernel, 'same'); 
+    y_sat_convolved = conv2(sat_values, y_kernel, 'same');
+    
+    background = bwmorph(greyscale_image == 0, 'clean', 2);
+    bool_x_hue_convolved = x_hue_convolved > 0.9;
+    bool_y_hue_convolved = y_hue_convolved > 0.9;
+    bool_x_sat_convolved = x_sat_convolved > 1;
+    bool_y_sat_convolved = y_sat_convolved > 0.9;
+    
+    balls = bool_x_hue_convolved | ...
+            bool_y_hue_convolved | ...
+            bool_x_sat_convolved | ...
+            bool_y_sat_convolved | ...
+            background;
+      
+    balls = ~balls;
+    balls = medfilt2(balls);
+    balls = bwmorph(balls, 'erode', 1);  
+end
+\end{verbatim}
+
+\chapter{\texttt{update\_ball_tracking.m}}
+\begin{verbatim}
+function [ ball_history ] = update_ball_tracking( current_conn_comps, current_frame, time, ball_history )
+
+    MIN_TIME = 25;
+    FRAME_X = size(current_frame, 1);
+    FRAME_Y = size(current_frame, 1);
+    
+    COLORS = {'red', 'green', 'blue', 'yellow', 'cyan', 'black', 'white', [255/255, 20/255, 147/255], [160/255, 32/255, 240/255], [139/255, 69/255, 19/255], [1, 140/255, 0], [0, 100/255, 0], [1, 222/255, 173/255]};
+    
+    % Distance function parameters - have tried to normalize these to ~1 
+    A = 1 / (FRAME_X * FRAME_Y);  % Area
+    X = 1 / FRAME_X;  % Centroid X
+    Y = 1 / FRAME_Y;  % Centroid Y
+    PREDICTED_X = 1 / FRAME_X; % Predicted centroid X (given prev. obj. vx)
+    PREDICTED_Y = 1 / FRAME_Y; % Predicted centroid Y (given prev. obj. vy)
+    T = 1;  % Time
+    H = 1;  % Avg. hue
+    S = 1;  % Avg. saturation
+    VX = 1 / FRAME_X;  % X-velocity
+    VY = 1 / FRAME_Y;  % Y-velocity
+    VM = 1 / sqrt(FRAME_X * FRAME_Y);  % Velocity magnitude
+    DIST_THRESH = 30;  % ! Will need some optimization !
+    TIME_THRESH = 1;  % Only look N frames max back in time
+    VM_THRESH = 0.25;  % Objects can only move this percentage of the frame per time unit
+    
+    ball_history{time} = {};
+    
+    num_conn_comps = size(current_conn_comps, 1);  % should be no more than 8 (or 10)
+    
+    are_there_conn_comps = size(current_conn_comps, 2);  % not really sure what's up with this... 
+    if ~are_there_conn_comps
+        return
+    end
+    
+    current_frame_hsv = rgb2hsv(current_frame);
+    hues = current_frame_hsv(:, :, 1);
+    sats = current_frame_hsv(:, :, 2);
+    
+    matched_obj_ids = {};
+    n_matched_objs = 0;
+    
+    for cc_i = 1 : num_conn_comps
+        cc = current_conn_comps(cc_i);
+        cc_a = cc.Area;
+        cc_x = cc.Centroid(1);
+        cc_y = cc.Centroid(2);
+        cc_t = time;
+        
+        n_pixels = size(cc.PixelList, 1);
+        
+        cc_hues = zeros(n_pixels);
+        cc_sats = zeros(n_pixels);
+        for p_i = 1 : n_pixels
+            y = cc.PixelList(p_i, 1);
+            x = cc.PixelList(p_i, 2);
+            cc_hues(p_i) = hues(x, y);
+            cc_sats(p_i) = sats(x, y);
+        end
+        cc_h = sum(sum(cc_hues)) / size(cc_hues, 1);  % sum of sums? why?
+        cc_s = sum(sum(cc_sats)) / size(cc_sats, 1);
+                
+        best_match_id = 'NONE';
+        best_match_score = -1;
+        cc_vx = 0;
+        cc_vy = 0;
+        cc_vm = 0;
+        cc_prev_x = 0;
+        cc_prev_y = 0;
+        for t = max(MIN_TIME, (time - TIME_THRESH)) : (time - 1)  % is -1 needed here? (error without)
+            n_objects = max(size(ball_history{t}));
+            for obj_i = 1 : n_objects
+                obj = ball_history{t}{obj_i};
+                
+                % Enforce 1-to-1 mappings ... "first come, first served"
+                already_matched = 0;
+                for i = 1 : n_matched_objs
+                    if strcmp(obj.id, matched_obj_ids{i})
+                        already_matched = 1;
+                    end
+                end
+                if already_matched == 1
+                    continue
+                end
+                
+                % Get proposed ball vector properties
+                temp_cc_vx = (cc_x - obj.x) / (time - t);
+                temp_cc_vy = (cc_y - obj.y) / (time - t);
+                temp_cc_vm = sqrt(temp_cc_vx^2 + temp_cc_vy^2);
+                
+                if temp_cc_vm * VM > VM_THRESH
+                    continue
+                end
+                
+                % Comparison
+                distance = sqrt(...
+                    A * (cc_a - obj.a) ^ 2 + ...
+                    X * (cc_x - obj.x + obj.vx) ^ 2 + ...
+                    Y * (cc_y - obj.y) ^ 2 + ...
+                    PREDICTED_X * (cc_x - (obj.x + obj.vx)) ^ 2 + ...
+                    PREDICTED_Y * (cc_y - (obj.y + obj.vy)) ^ 2 + ...
+                    T * (cc_t - obj.t) ^ 2 + ...
+                    H * (cc_h - obj.h) ^ 2 + ...
+                    S * (cc_s - obj.s) ^ 2 + ...
+                    VX * (temp_cc_vx - obj.vx) ^ 2 + ...
+                    VY * (temp_cc_vy - obj.vy) ^ 2 + ...
+                    VM * (temp_cc_vm - obj.vm) ^ 2 ...
+                );
+            
+                if distance > DIST_THRESH
+                    continue
+                end    
+                
+                if (distance < best_match_score) || strcmp(best_match_id, 'NONE')
+                    best_match_id = obj.id;
+                    best_match_score = distance;
+                    cc_vx = temp_cc_vx;
+                    cc_vy = temp_cc_vy;
+                    cc_vm = temp_cc_vm;
+                    cc_prev_x = obj.x;
+                    cc_prev_y = obj.y;
+                    cc_color = obj.color;
+                end
+                
+            end
+        end
+        
+        if strcmp(best_match_id, 'NONE')
+            best_match_id = strcat(num2str(time), '-', num2str(cc_i));
+            cc_prev_x = cc_x;
+            cc_prev_y = cc_y;
+            color_i = randi(max(size(COLORS)));
+            cc_color = COLORS{color_i};
+        else
+            % Record object ID as matched, so no other CCs can claim it:
+            n_matched_objs = n_matched_objs + 1;
+            matched_obj_ids{n_matched_objs} = best_match_id;
+            
+            % Commented out for now... with big enough emphasis on T comp.
+            % or limit how far back in time matching can occur, hopefully
+            % this will not be needed
+            %for t = MIN_TIME : (time - 1)
+            %    n_objects = size(ball_history{t});
+            %    for obj_i = 1 : n_objects
+            %        obj = ball_history{t}{obj_i};
+            %        if strcmp(obj.id, best_match_id)
+            %            % Get most recent location of object
+            %            cc_prev_x = obj.x;
+            %            cc_prev_y = obj.y;
+            %        end
+            %    end
+            %end
+        end
+        
+        ball_history{time}{cc_i} = struct( ...
+            'id', best_match_id, ...
+            'a', cc_a, ...
+            'x', cc_x, ...
+            'y', cc_y, ...
+            't', cc_t, ...
+            'h', cc_h, ...
+            's', cc_s, ...
+            'vx', cc_vx, ...
+            'vy', cc_vy, ...
+            'vm', cc_vm, ...
+            'prev_x', cc_prev_x, ...
+            'prev_y', cc_prev_y, ...
+            'color', cc_color ...
+        );
+    
+    end
+
+end
+\end{verbatim}
 
 \end{document}
