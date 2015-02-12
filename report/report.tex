@@ -43,12 +43,27 @@ In some instances, after background subtraction multiple balls may be located wi
 To perform this step, we use the function \texttt{separate\_balls}, passing our background mask and the current frame. For each connected component within our background mask, we check to see whether its eccentricity is below a certain threshold. If the connected component has low eccentricity according to this threshold, we consider the connected component sufficiently ball-like such that we do not need to perform any separation. Following this, we apply the background mask to our current (RGB) frame, keying out the background and leaving only (potential) foreground objects. We also key out the previously found ball-like connected components. The resultant keyed frame is then passed to the \texttt{separate\_connected\_component} function.
 
 In \texttt{separate\_connected\_component}, we convert the given masked image from RGB into HSV, then isolate the H and S channels. Following this, we apply the Scharr variant of the well-known Sobel edge-detection kernel in both the \texttt{x} and \texttt{y} directions to the respective channels, providing us derivatives with respect to hue and saturation both vertically and horizontally. In doing so, we are able to distinguish not only differently-colored balls from each other (by virtue of their differing hues and saturations) but also (under ideal circumstances) the background between balls from the balls themselves. We then threshold these derivatives to create further binary masks. Additionally, we isolate the background mask from the given image and apply the \texttt{bwmorph} ``\texttt{clean}" function. We then merge these five masks (including background mask) into a single mask by using the Matlab vector ``or" (\texttt{|}) operator. We finally apply various functions to improve the quality of the final mask, namely, \texttt{medfilt2} and \texttt{bwmporh} ``\texttt{erode}". We subsequently return this mask.
+
+\begin{figure}
+	\centering
+    \includegraphics[width=140mm]{frame_35_imgs/separate_balls.png}
+    \caption{Resulting image after separating connected components}
+	\label{my-label01}
+\end{figure}
+
 \subsubsection{Final connected component extraction}
 Finally, we extract all balls and their properties (in particular, centre position, area, diameter and pixel list of the connected component) in \texttt{extractForegroundObjects}. We apply 3 simple steps to remove components that are not likely to be balls - removing small or dark objects as well as only returning 10 largest components. Since we have area as part of the proporties for each of the connected component, we can then easily check if the area is larger than some predefined threshold (in our case, 50 pixels) and remove ones that are too small. We then remove objects that are dark and likely to be part of the background by converting all pixel values of the connected component to greyscale, finding the mean value (average luminocity) of all pixels in it and keeping only the ones that has average luminocty higher than a threshold.
 
 Since, the total number of balls is known to be 10 we are sure that if we have more than 10 connected components then some of them are clearly not balls. Therefore, we only keep 10 largest objects assuming that noise objects are going to be smaller than any of the balls.
 
-The result of \texttt{extractForegroundObjects} is the final list of all recognized balls in the frame.    
+The result of \texttt{extractForegroundObjects} is the final list of all recognized balls in the frame.   
+
+\begin{figure}
+	\centering
+    \includegraphics[width=140mm]{frame_35_imgs/extractForegroundObjects.png}
+    \caption{Resulting image after extracting balls}
+	\label{my-label02}
+\end{figure} 
 
 \subsection{Cross-frame object tracking}
 Having isolated connected components, we then seek to match these to connected components (``objects") from previous frames within the function \texttt{update\_ball\_tracking}. Each object in the current frame is uniquely mapped to at most one object from previous frames. Matching between objects is performed by first calculating a number of respective properties given the object's connected component, as follows:
@@ -72,6 +87,13 @@ For each potential mapping between current and past objects, the mapping is imme
 \item the calculated velocity of the current object if matched to the past object would exceed a set velocity thresholding parameter.
 \end{itemize}
 Otherwise, a cost is calculated for the mapping between objects by calculating a Euclidean distance between these properties in n-dimensional space, with each component approximately normalized to a value of 1 (e.g. $obj_{x}$ is divided by the width of the frame). Should this cost exceed a predetermined threshold, the mapping is discarded.
+
+\begin{figure}
+	\centering
+    \includegraphics[width=140mm]{frame_35_imgs/update_ball_tracking.png}
+    \caption{Resulting paths drawn on top of the frame}
+	\label{my-label02}
+\end{figure}
 
 While minimizing the costs across all possible mappings constitutes an optimization problem, for the sake of simplicity we instead utilize a greedy ``first come, first served" approach whereby the first found connected component/object is paired with the best-matching past object not violating any of the above constraints, the second paired with any best-matching past object not including that matched to the first object, \textit{et cetera}. Finally, these mappings are used to determine \texttt{prev\_x} and \texttt{prev\_y} properties for the current objects, which are used when plotting object paths.
 
@@ -110,6 +132,19 @@ correct pairings & erroneous pairings & ?? & ?? \\ \midrule
 \label{my-label2}
 \end{table}
 
+\begin{figure}
+	\centering
+    \includegraphics[width=140mm]{ground_truth_trajectories.png}
+    \caption{Ground truth trajectories drawn on top of the background image}
+	\label{my-label05}
+\end{figure} 
+
+\begin{figure}
+	\centering
+    \includegraphics[width=140mm]{our_tracking.png}
+    \caption{Our predicted ball trajectories drawn on top of the background image}
+	\label{my-label06}
+\end{figure} 
 
 \section{Discussion}
 In this assignment we made the decision to eschew the condensity approach as presented in the lectures, as this was deemed needlessly complex for the requisite task. Although our tracking worked well in many situations, the implementation of condensity-based tracking may have better resolved issues with object tracking in the beginning of the video, as well as in later incidents in which our tracking/object linking system proved too brittle to handle tracking across more than two frames.
