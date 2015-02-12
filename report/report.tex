@@ -59,10 +59,9 @@ For each potential mapping between current and past objects, the mapping is imme
 \item the past object existed too long in the past, as determined by a time thresholding parameter, or
 \item the calculated velocity of the current object if matched to the past object would exceed a set velocity thresholding parameter.
 \end{itemize}
-Otherwise, a cost is calculated for the mapping between objects using the following formula:
-\[
-formula\;goes\;here
-\]
+Otherwise, a cost is calculated for the mapping between objects by calculating a Euclidean distance between these properties in n-dimensional space, with each component approximately normalized to a value of 1 (e.g. $obj_{x}$ is divided by the width of the frame). Should this cost exceed a predetermined threshold, the mapping is discarded.
+
+While minimizing the costs across all possible mappings constitutes an optimization problem, for the sake of simplicity we instead utilize a greedy ``first come, first served" approach whereby the first found connected component/object is paired with the best past object not violating any of the above constraints, the second paired with any past object not including that matched to the first object, \texti{et cetera}. Finally, these mappings are used to determine \texttt{prev\_x} and \texttt{prev\_y} properties for the current objects, which are used when plotting object paths.
 
 \section{Results}
 
