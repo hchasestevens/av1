@@ -96,7 +96,7 @@ We have also evaluated our tracker. We found the number of correct and erroneous
 \centering
 \begin{tabular}{@{}cccc@{}}
 \toprule
-correct pairings & erroneous pairings & not detected & mean distance \\ \midrule
+correct pairings & erroneous pairings & ?? & ?? \\ \midrule
 ??                & ??                    & ??           & ??        \\ \bottomrule
 \end{tabular}
 \caption{Ball tracking results}
