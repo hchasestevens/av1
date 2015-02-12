@@ -581,7 +581,8 @@ function [ ball_history ] = update_ball_tracking( ...
                     continue
                 end    
                 
-                if (distance < best_match_score) || strcmp(best_match_id, 'NONE')
+                if ((distance < best_match_score) ||...
+                      strcmp(best_match_id, 'NONE'))
                     best_match_id = obj.id;
                     best_match_score = distance;
                     cc_vx = temp_cc_vx;
