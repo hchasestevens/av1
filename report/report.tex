@@ -126,18 +126,7 @@ Unfortunatelly, more than 30 balls could not be detected. Majority of these case
 \end{figure} 
 
 \subsection{Object tracking}
-We have also evaluated our tracker. We found the number of correct and erroneous pairings as well as the percentage of ball detections that belong to trajectories with only 1 detection. We have also drawn an image of all ground truth trajectories on top of a background image \texttt{bgframe.jpg} as well as a separate image showing each of our predicted trajectories. By comparing these two images we made final tracking evaluation and calculated the number of tracked trajectories for each of the 10 balls. The results are shown in the table below:
-
-\begin{table}[h]
-\centering
-\begin{tabular}{@{}cccc@{}}
-\toprule
-correct pairings & erroneous pairings & object detected once & ?? \\ \midrule
-??                & ??                    & 3           & ??        \\ \bottomrule
-\end{tabular}
-\caption{Ball tracking results}
-\label{my-label2}
-\end{table}
+We have also evaluated our tracker. We found the percentage of ball detections that belong to trajectories with only 1 detection and it turns out to be 30\% or 3 balls out of 10 were detected perfectly from the beginning until the end. We have also drawn an image of all ground truth trajectories on top of a background image \texttt{bgframe.jpg} as well as a separate image showing each of our predicted trajectories.
 
 \begin{figure}
 	\centering
@@ -149,7 +138,7 @@ correct pairings & erroneous pairings & object detected once & ?? \\ \midrule
 \begin{figure}
 	\centering
     \includegraphics[width=140mm]{mistakes/frame_31_interobject_tracking_mismatches.png}
-    \caption{???}
+    \caption{Tracking system confuses multiple objects}
 	\label{my-label08}
 \end{figure} 
 
