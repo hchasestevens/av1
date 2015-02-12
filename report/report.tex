@@ -75,7 +75,8 @@ Evaluation has been done in two steps. We evaluated our code's ability to recogn
 When we get the final list of objects recognized as balls, we then call our evaluation function \texttt{evaluate} that calculates the number of balls that were detected within 10 pixels of any ground truth, the mean distance between the ground truth and estimated centres for all such balls within the 10 pixel distance threshold, the number of false ball detections and the number of balls that were not detected. Results are present in the following table:
 
 \begin{table}[h]
-\begin{tabular}{@{}llll@{}}
+\centering
+\begin{tabular}{@{}cccc@{}}
 \toprule
 correct detections & incorrect detections & not detected & mean distance \\ \midrule
 241                & 0                    & 32           & 2.5746        \\ \bottomrule
